@@ -7,7 +7,9 @@ Mask::Mask(int id_, std::vector<uint64_t> mask_) : id{id_}, mask{mask_} {}
 // std::string Mask::to_string() const {}
 
 //define class Segment
-Segment::Segment() {}
+Segment::Segment() : lc{0}, hc{0}, id{0}, strip{0}, partition{0} {
+    update_quality();
+}
 Segment::Segment(unsigned int lc_,
                  unsigned int hc_,
                  unsigned int id_,
@@ -66,6 +68,12 @@ bool Segment::operator>(const Segment& other) {
 }
 bool Segment::operator<(const Segment& other) {
     return (quality < other.quality);
+}
+bool Segment::operator>=(const Segment& other) {
+    return (quality >= other.quality);
+}
+bool Segment::operator<=(const Segment& other) {
+    return (quality <= other.quality);
 }
 
 //define functions to generate patterns
@@ -174,47 +182,4 @@ std::vector<std::vector<Segment>> chunk(const std::vector<Segment>& in_list, int
         chunks.push_back(chunk);
     }
     return chunks;
-}
-
-std::map<int,patdef_t> patlist_lut_() {
-    std::map<int,patdef_t> out;
-    patdef_t pat_straight = patdef_t(19, create_pat_ly(-0.4, 0.4));
-    patdef_t pat_l = patdef_t(18, create_pat_ly(0.2, 0.9));
-    patdef_t pat_r = mirror_patdef(pat_l, pat_l.id - 1);
-    patdef_t pat_l2 = patdef_t(16, create_pat_ly(0.5, 1.2));
-    patdef_t pat_r2 = mirror_patdef(pat_l2, pat_l2.id - 1);
-    patdef_t pat_l3 = patdef_t(14, create_pat_ly(0.9, 1.7));
-    patdef_t pat_r3 = mirror_patdef(pat_l3, pat_l3.id - 1);
-    patdef_t pat_l4 = patdef_t(12, create_pat_ly(1.4, 2.3));
-    patdef_t pat_r4 = mirror_patdef(pat_l4, pat_l4.id - 1);
-    patdef_t pat_l5 = patdef_t(10, create_pat_ly(2.0, 3.0));
-    patdef_t pat_r5 = mirror_patdef(pat_l5, pat_l5.id - 1);
-    patdef_t pat_l6 = patdef_t(8, create_pat_ly(2.7, 3.8));
-    patdef_t pat_r6 = mirror_patdef(pat_l6, pat_l6.id - 1);
-    patdef_t pat_l7 = patdef_t(6, create_pat_ly(3.5, 4.7));
-    patdef_t pat_r7 = mirror_patdef(pat_l7, pat_l7.id-1);
-    patdef_t pat_l8 = patdef_t(4, create_pat_ly(4.3, 5.5));
-    patdef_t pat_r8 = mirror_patdef(pat_l8, pat_l8.id-1);
-    patdef_t pat_l9 = patdef_t(2, create_pat_ly(5.4, 7.0));
-    patdef_t pat_r9 = mirror_patdef(pat_l9, pat_l9.id - 1);
-    out.insert(std::pair<int,patdef_t>(19,pat_straight));
-    out.insert(std::pair<int,patdef_t>(18,pat_l));
-    out.insert(std::pair<int,patdef_t>(17,pat_r));
-    out.insert(std::pair<int,patdef_t>(16,pat_l2));
-    out.insert(std::pair<int,patdef_t>(15,pat_r2));
-    out.insert(std::pair<int,patdef_t>(14,pat_l3));
-    out.insert(std::pair<int,patdef_t>(13,pat_r3));
-    out.insert(std::pair<int,patdef_t>(12,pat_l4));
-    out.insert(std::pair<int,patdef_t>(11,pat_r4));
-    out.insert(std::pair<int,patdef_t>(10,pat_l5));
-    out.insert(std::pair<int,patdef_t>( 9,pat_r5));
-    out.insert(std::pair<int,patdef_t>( 8,pat_l6));
-    out.insert(std::pair<int,patdef_t>( 7,pat_r6));
-    out.insert(std::pair<int,patdef_t>( 6,pat_l7));
-    out.insert(std::pair<int,patdef_t>( 5,pat_r7));
-    out.insert(std::pair<int,patdef_t>( 4,pat_l8));
-    out.insert(std::pair<int,patdef_t>( 3,pat_r8));
-    out.insert(std::pair<int,patdef_t>( 2,pat_l9));
-    out.insert(std::pair<int,patdef_t>( 1,pat_r9));
-    return out;
 }

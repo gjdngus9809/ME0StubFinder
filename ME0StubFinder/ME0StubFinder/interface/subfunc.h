@@ -80,6 +80,8 @@ public:
     bool operator==(const Segment& other);
     bool operator>(const Segment& other);
     bool operator<(const Segment& other);
+    bool operator>=(const Segment& other);
+    bool operator<=(const Segment& other);
 };
 
 hi_lo_t mirror_hi_lo(const hi_lo_t& ly);
@@ -94,8 +96,5 @@ std::vector<int> find_ones(uint64_t& data);
 float find_centroid(uint64_t& data);
 std::vector<float> llse_fit(const std::vector<float>& x, const std::vector<float>& y);
 std::vector<std::vector<Segment>> chunk(const std::vector<Segment>& in_list, int n);
-std::map<int,patdef_t> patlist_lut_();
-
-// constexpr std::map<int, patdef_t> PATLIST_LUT = patlist_lut_();
 
 #endif

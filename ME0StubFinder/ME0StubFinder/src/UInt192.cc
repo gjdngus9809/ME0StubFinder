@@ -1,5 +1,4 @@
 #include "ME0StubFinder/ME0StubFinder/interface/UInt192.h"
-#include <iomanip>
 
 // Default constructor
 UInt192::UInt192() : low(0), mid(0), high(0) {}
@@ -211,6 +210,10 @@ bool UInt192::operator>=(const uint64_t& other) const {
 
 UInt192::operator bool() const {
     return (high != 0) || (mid != 0) || (low != 0);
+}
+
+UInt192::operator uint64_t() const {
+    return low;
 }
 
 // Stream output operator for printing

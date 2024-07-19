@@ -1,8 +1,9 @@
-#ifndef ME0StubFinder_ME0StubFinder_UINT192_H
-#define ME0StubFinder_ME0StubFinder_UINT192_H
+#ifndef ME0StubFinder_ME0StubFinder_UInt192_H
+#define ME0StubFinder_ME0StubFinder_UInt192_H
 
 #include <iostream>
 #include <cstdint>
+#include <iomanip>
 
 class UInt192 {
 private:
@@ -45,8 +46,6 @@ public:
     UInt192& operator<<=(const int shift);
     UInt192& operator>>=(const int shift);
 
-
-
     // Comparison operators
     bool operator==(const UInt192& other) const;
     bool operator!=(const UInt192& other) const;
@@ -65,6 +64,9 @@ public:
 
     // bool
     explicit operator bool() const;
+    
+    // uint64_t
+    explicit operator uint64_t() const;
 
     // Stream output operator for printing
     friend std::ostream& operator<<(std::ostream& os, const UInt192& value);
