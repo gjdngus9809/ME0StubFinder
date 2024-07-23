@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/pat_unit_beh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/PatUnitBeh.h"
 
 std::vector<uint64_t> mask_layer_data(const std::vector<uint64_t>& data, const Mask& mask_) {
     std::vector<uint64_t> out;

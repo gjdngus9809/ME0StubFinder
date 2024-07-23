@@ -17,8 +17,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "MuonAnalysis/ME0StubFinder/interface/pat_unit_beh.h"
-#include "MuonAnalysis/ME0StubFinder/interface/mask.h"
+#include "MuonAnalysis/ME0StubFinder/interface/PatUnitBeh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Mask.h"
 
 class PatUnitBehAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:

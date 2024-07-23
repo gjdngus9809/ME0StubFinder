@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/pat_unit_mux_beh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/PatUnitMuxBeh.h"
 
 uint64_t parse_data(const UInt192& data, int strip, int max_span) {
     UInt192 data_shifted;

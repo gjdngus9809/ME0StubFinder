@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/partition_beh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/PartitionBeh.h"
 
 bool is_ghost(const Segment& seg,
               const Segment& comp,

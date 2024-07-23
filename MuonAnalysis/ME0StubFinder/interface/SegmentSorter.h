@@ -1,8 +1,7 @@
 #ifndef MuonAnalysis_ME0StubFinder_SegmentSorter_H
 #define MuonAnalysis_ME0StubFinder_SegmentSorter_H
 
-// #include "MuonAnalysis/ME0StubFinder/interface/subfunc.h"
-#include "subfunc.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Subfunc.h"
 #include <vector>
 
 void insertionSort(std::vector<Segment>& vec, int left, int right);

@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/subfunc.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Subfunc.h"
 
 //define structures
 hi_lo_t::hi_lo_t(int hi_, int lo_) : hi{hi_}, lo{lo_} {}

@@ -1,8 +1,7 @@
 #ifndef MuonAnalysis_ME0StubFinder_Mask_H
 #define MuonAnalysis_ME0StubFinder_Mask_H
 
-// #include "MuonAnalysis/ME0StubFinder/interface/subfunc.h"
-#include "subfunc.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Subfunc.h"
 
 std::vector<int> shift_center(const hi_lo_t& ly, int max_span);
 uint64_t set_high_bits(const std::vector<int>& lo_hi_pair);

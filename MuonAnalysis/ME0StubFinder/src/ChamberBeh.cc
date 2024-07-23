@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/chamber_beh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/ChamberBeh.h"
 #include <algorithm>
 
 void cross_partition_cancellation(std::vector<std::vector<Segment>>& segments, int cross_part_seg_width) {

@@ -1,10 +1,8 @@
 #ifndef MuonAnalysis_ME0StubFinder_PatUnitBeh_H
 #define MuonAnalysis_ME0StubFinder_PatUnitBeh_H
 
-// #include "MuonAnalysis/ME0StubFinder/interface/subfunc.h"
-// #include "MuonAnalysis/ME0StubFinder/interface/mask.h"
-#include "subfunc.h"
-#include "mask.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Subfunc.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Mask.h"
 #include <cmath>
 #include <vector>
 #include <cstdint>

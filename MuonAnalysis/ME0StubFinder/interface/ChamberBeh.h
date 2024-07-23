@@ -1,12 +1,9 @@
 #ifndef MuonAnalysis_ME0StubFinder_ChamberBeh_H
 #define MuonAnalysis_ME0StubFinder_ChamberBeh_H
 
-// #include "MuonAnalysis/ME0StubFinder/interface/subfunc.h"
-// #include "MuonAnalysis/ME0StubFinder/interface/partition_beh.h"
-// #include "MuonAnalysis/ME0StubFinder/interface/segment_sorter.h"
-#include "subfunc.h"
-#include "partition_beh.h"
-#include "segment_sorter.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Subfunc.h"
+#include "MuonAnalysis/ME0StubFinder/interface/PartitionBeh.h"
+#include "MuonAnalysis/ME0StubFinder/interface/SegmentSorter.h"
 #include <vector>
 #include <cstdint>
 #include <algorithm>

@@ -1,8 +1,7 @@
-#ifndef MuonAnalysis_ME0StubFinder_subfunc_H
-#define MuonAnalysis_ME0StubFinder_subfunc_H
+#ifndef MuonAnalysis_ME0StubFinder_Subfunc_H
+#define MuonAnalysis_ME0StubFinder_Subfunc_H
 
-// #include "MuonAnalysis/ME0StubFinder/interface/UInt192.h"
-#include "UInt192.h"
+#include "MuonAnalysis/ME0StubFinder/interface/UInt192.h"
 #include <cmath>
 #include <vector>
 #include <map>

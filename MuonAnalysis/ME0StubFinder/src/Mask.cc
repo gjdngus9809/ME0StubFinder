@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/mask.h"
+#include "MuonAnalysis/ME0StubFinder/interface/Mask.h"
 
 std::vector<int> shift_center(const hi_lo_t& ly, int max_span) {
     /*

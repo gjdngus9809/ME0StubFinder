@@ -1,4 +1,4 @@
-#include "MuonAnalysis/ME0StubFinder/interface/segment_sorter.h"
+#include "MuonAnalysis/ME0StubFinder/interface/SegmentSorter.h"
 
 // Function to perform insertion sort on a subarray
 void insertionSort(std::vector<Segment>& vec, int left, int right) {
