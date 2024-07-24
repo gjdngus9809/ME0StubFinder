@@ -7,6 +7,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.test = cms.EDAnalyzer("TestPatUnitBeh")
+process.test = cms.EDAnalyzer("TestSubFunctions")
 
 process.p = cms.Path(process.test)

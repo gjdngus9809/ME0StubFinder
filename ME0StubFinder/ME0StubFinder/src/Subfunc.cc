@@ -97,12 +97,13 @@ std::vector<hi_lo_t> create_pat_ly(float lower, float upper) {
         if (i < 3) {
             hi = lower*(i-2.5);
             lo = upper*(i-2.5);
-        } else {
+        }
+        else {
             hi = upper*(i-2.5);
             lo = lower*(i-2.5);
         }
-        if (abs(hi) < 0.1) {hi = 0.0f;}
-        if (abs(lo) < 0.1) {lo = 0.0f;}
+        if (std::abs(hi) < 0.1) {hi = 0.0f;}
+        if (std::abs(lo) < 0.1) {lo = 0.0f;}
         hi_i = std::ceil(hi);
         lo_i = std::floor(lo);
         layer_list.push_back(hi_lo_t{hi_i, lo_i});
