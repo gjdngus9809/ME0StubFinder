@@ -1,7 +1,7 @@
 #include "ME0StubFinder/ME0StubFinder/interface/PartitionBeh.h"
 
-bool is_ghost(const Segment& seg,
-              const Segment& comp,
+bool is_ghost(const ME0Stub& seg,
+              const ME0Stub& comp,
               bool check_ids,
               bool check_strips) {
     /*
@@ -17,7 +17,7 @@ bool is_ghost(const Segment& seg,
 }
 
 
-std::vector<Segment> cancel_edges(const std::vector<Segment>& segments,
+std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
                                   int group_width,
                                   int ghost_width,
                                   int edge_distance,
@@ -52,7 +52,7 @@ std::vector<Segment> cancel_edges(const std::vector<Segment>& segments,
     etc
     */
 
-    std::vector<Segment> canceled_segements = segments;
+    std::vector<ME0Stub> canceled_segements = segments;
     std::vector<int> comps;
     bool is_at_edge;
     bool ghost;
@@ -72,7 +72,7 @@ std::vector<Segment> cancel_edges(const std::vector<Segment>& segments,
             for (int comp : comps) {
                 ghost = is_ghost(segments[i], segments[comp]);
                 if (ghost) {
-                    canceled_segements[i] = Segment();
+                    canceled_segements[i] = ME0Stub();
                 }
             }
             comps.clear();
@@ -82,7 +82,7 @@ std::vector<Segment> cancel_edges(const std::vector<Segment>& segments,
     return canceled_segements;
 }
 
-std::vector<Segment> process_partition(const std::vector<UInt192>& partition_data,
+std::vector<ME0Stub> process_partition(const std::vector<UInt192>& partition_data,
                                        int partition,
                                        Config& config) {
     
@@ -97,17 +97,17 @@ std::vector<Segment> process_partition(const std::vector<UInt192>& partition_dat
     steps: process partition data with pat_mux, perfom edge cancellations,
     divide partition into pieces, take best segment from each piece
     */
-    std::vector<Segment> out;
-    std::vector<Segment> segments = pat_mux(partition_data, partition, config);
+    std::vector<ME0Stub> out;
+    std::vector<ME0Stub> segments = pat_mux(partition_data, partition, config);
 
     if (config.deghost_pre) {
         segments = cancel_edges(segments, config.group_width, config.ghost_width, config.edge_distance);
     }
     
-    std::vector<std::vector<Segment>> chunked = chunk(segments, config.group_width);
-    for (const std::vector<Segment>& seg_v : chunked) {
-        Segment max_seg;
-        for (const Segment& seg : seg_v) {
+    std::vector<std::vector<ME0Stub>> chunked = chunk(segments, config.group_width);
+    for (const std::vector<ME0Stub>& seg_v : chunked) {
+        ME0Stub max_seg;
+        for (const ME0Stub& seg : seg_v) {
             if (max_seg < seg) {max_seg = seg;}
         }
         out.push_back(max_seg);

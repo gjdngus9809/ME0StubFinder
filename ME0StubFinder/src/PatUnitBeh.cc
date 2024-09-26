@@ -41,9 +41,9 @@ int calculate_layer_count(const std::vector<uint64_t>& masked_data) {
     return ly_count;
 }
 
-Segment pat_unit(const std::vector<uint64_t>& data, 
-                 unsigned int strip, 
-                 unsigned int ly_tresh, 
+ME0Stub pat_unit(const std::vector<uint64_t>& data, 
+                 int strip, 
+                 int ly_tresh, 
                  int partition, 
                  int input_max_span, 
                  int num_or, 
@@ -82,8 +82,8 @@ Segment pat_unit(const std::vector<uint64_t>& data,
 
     // (3) count # of hits
     // (4) process centroids
-    std::vector<unsigned int> hcs;
-    std::vector<unsigned int> lcs;
+    std::vector<int> hcs;
+    std::vector<int> lcs;
     std::vector<std::vector<float>> centroids;
     for (const std::vector<uint64_t>& x : masked_data) {
         hcs.push_back(calculate_hit_count(x, light_hit_count));
@@ -91,12 +91,12 @@ Segment pat_unit(const std::vector<uint64_t>& data,
         centroids.push_back(calculate_centroids(x));
     }
 
-    // std::vector<Segment> seg_list;
+    // std::vector<ME0Stub> seg_list;
     // for (int i = 0; i<hcs.size(); ++i) {
         // seg_list.push_back()
     // }
-    Segment best{0,0,0,0,0};
-    Segment seg{0,0,0,0,0};
+    ME0Stub best{0,0,0,0,0};
+    ME0Stub seg{0,0,0,0,0};
     for (int i = 0; i<(int)hcs.size(); ++i) {
         seg.lc = lcs[i]; seg.hc = hcs[i]; seg.id = pids[i]; seg.strip = strip;
         seg.update_quality();

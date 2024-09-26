@@ -1,12 +1,12 @@
 #include "ME0StubFinder/ME0StubFinder/interface/ChamberBeh.h"
 #include <algorithm>
 
-void cross_partition_cancellation(std::vector<std::vector<Segment>>& segments, int cross_part_seg_width) {
-    Segment seg, seg1, seg2;
+void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width) {
+    ME0Stub seg, seg1, seg2;
 
     int strip;
-    unsigned int seg1_max_quality;
-    unsigned int seg2_max_quality;
+    int seg1_max_quality;
+    int seg2_max_quality;
     int seg1_max_quality_index;
     int seg2_max_quality_index;
     
@@ -64,8 +64,8 @@ void cross_partition_cancellation(std::vector<std::vector<Segment>>& segments, i
     }
 }
 
-std::vector<Segment> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data, Config& config) {
-    std::vector<std::vector<Segment>> segments;
+std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data, Config& config) {
+    std::vector<std::vector<ME0Stub>> segments;
     int num_finder = (config.x_prt_en)? 15 : 8;
 
     std::vector<std::vector<UInt192>> data = std::vector<std::vector<UInt192>>(num_finder,std::vector<UInt192>(6));
@@ -91,7 +91,7 @@ std::vector<Segment> process_chamber(const std::vector<std::vector<UInt192>>& ch
 
     for (int prt=0; prt<(int)data.size(); ++prt) {
         const std::vector<UInt192>& prt_data = data[prt];
-        const std::vector<Segment>& segs = process_partition(prt_data, prt, config);
+        const std::vector<ME0Stub>& segs = process_partition(prt_data, prt, config);
         segments.push_back(segs);
     }
     if (config.cross_part_seg_width > 0) {
@@ -105,10 +105,10 @@ std::vector<Segment> process_chamber(const std::vector<std::vector<UInt192>>& ch
     }
 
     // join each 2 partitions and pick the best N outputs from them
-    std::vector<std::vector<Segment>> joined_segments;
+    std::vector<std::vector<ME0Stub>> joined_segments;
     for (int i = 1; i<(int)segments.size(); i+=2) {
-        std::vector<std::vector<Segment>> seed = {segments[i-1],segments[i]};
-        std::vector<Segment> pair = concatVector(seed);
+        std::vector<std::vector<ME0Stub>> seed = {segments[i-1],segments[i]};
+        std::vector<ME0Stub> pair = concatVector(seed);
         joined_segments.push_back(pair);
     }
     joined_segments.push_back(segments[14]);
@@ -118,7 +118,7 @@ std::vector<Segment> process_chamber(const std::vector<std::vector<UInt192>>& ch
     }
 
     // concatenate together all of the segments, sort them, and pick the best N outputs
-    std::vector<Segment> concatenated = concatVector(joined_segments);
+    std::vector<ME0Stub> concatenated = concatVector(joined_segments);
     // concatenated = segment_sorter(concatenated, config.num_outputs, 8);
     segment_sorter(concatenated, config.num_outputs, 8);
 

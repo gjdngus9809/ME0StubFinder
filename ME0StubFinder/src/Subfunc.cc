@@ -1,81 +1,5 @@
 #include "ME0StubFinder/ME0StubFinder/interface/Subfunc.h"
 
-//define structures
-hi_lo_t::hi_lo_t(int hi_, int lo_) : hi{hi_}, lo{lo_} {}
-patdef_t::patdef_t(int id_, std::vector<hi_lo_t> layers_) : id{id_}, layers{layers_} {}
-Mask::Mask(int id_, std::vector<uint64_t> mask_) : id{id_}, mask{mask_} {}
-// std::string Mask::to_string() const {}
-
-//define class Segment
-Segment::Segment() : lc{0}, hc{0}, id{0}, strip{0}, partition{0} {
-    update_quality();
-}
-Segment::Segment(unsigned int lc_,
-                 unsigned int hc_,
-                 unsigned int id_,
-                 unsigned int strip_,
-                 unsigned int partition_) :
-                lc{lc_}, hc{hc_}, id{id_}, strip{strip_}, partition{partition_} {
-    update_quality();
-}
-Segment::Segment(unsigned int lc_,
-                 unsigned int hc_,
-                 unsigned int id_,
-                 unsigned int strip_,
-                 unsigned int partition_,
-                 std::vector<float>& centroid_) :
-                lc{lc_}, hc{hc_}, id{id_}, strip{strip_}, partition{partition_}, centroid{centroid_} {
-    update_quality();
-}
-void Segment::reset() {
-    lc = 0; hc = 0; id = 0;
-    update_quality();
-}
-void Segment::update_quality() {
-    unsigned int idmask;
-    if (lc) {
-        if (ignore_bend) {idmask = 0xfe;}
-        else {idmask = 0xff;}
-        quality = (lc << 23) | (hc << 17) | ((id & idmask) << 12) | (strip << 4) | partition;
-    } else {quality = 0;}
-}
-void Segment::fit(int max_span) {
-    if (id) {
-        std::vector<float> tmp;
-        for (float cent : centroid) {
-            tmp.push_back(cent-(max_span/2+1));
-        }
-        std::vector<float> x;
-        std::vector<float> centroids;
-        for (unsigned int i=0; i < tmp.size(); ++i) {
-            if (tmp[i] != -1*(max_span/2+1)) {
-                x.push_back(i-2.5);
-                centroids.push_back(tmp[i]);
-            }
-        }
-        std::vector<float> fit = llse_fit(x, centroids);
-        bend_ang = fit[0];
-        substrip = fit[1];
-    }
-}
-// std::string Segment::to_string() const {}
-bool Segment::operator==(const Segment& other) {
-    if (lc == 0 && other.lc == 0) {return true;}
-    return (quality == other.quality);
-}
-bool Segment::operator>(const Segment& other) {
-    return (quality > other.quality);
-}
-bool Segment::operator<(const Segment& other) {
-    return (quality < other.quality);
-}
-bool Segment::operator>=(const Segment& other) {
-    return (quality >= other.quality);
-}
-bool Segment::operator<=(const Segment& other) {
-    return (quality <= other.quality);
-}
-
 //define functions to generate patterns
 hi_lo_t mirror_hi_lo(const hi_lo_t& ly) {
     hi_lo_t mirrored{-1*(ly.lo), -1*(ly.hi)};
@@ -154,33 +78,27 @@ float find_centroid(uint64_t& data) {
     if (!(ones.size())) {return 0.0;}
     int sum = 0;
     for (int n : ones) {sum += n;}
-    return sum/ones.size();
+    return (float)sum/ones.size();
 }
-std::vector<float> llse_fit(const std::vector<float>& x, const std::vector<float>& y) {
-    float x_sum = 0;
-    float y_sum = 0;
-    for (float val : x) {x_sum += val;}
-    for (float val : y) {y_sum += val;}
-    int n = x.size();
-    // linear regression
-    float product = 0;
-    float squares = 0;
-    for (int i=0; i<n; ++i) {
-        product += (n*x[i] - x_sum)*(n*y[i] - y_sum);
-        squares += (n*x[i] - x_sum)*(n*x[i] - x_sum);
-    }
-
-    float m = product/squares;
-    float b = (y_sum - m*x_sum)/n;
-    std::vector<float> fit = {m, b};
-    return fit;
-}
-std::vector<std::vector<Segment>> chunk(const std::vector<Segment>& in_list, int n) {
-    std::vector<std::vector<Segment>> chunks;
+std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int n) {
+    std::vector<std::vector<ME0Stub>> chunks;
     int size = in_list.size();
     for (int i = 0; i < (size + n - 1) / n; ++i) {
-        std::vector<Segment> chunk(in_list.begin() + i * n, in_list.begin() + std::min((i + 1) * n, size));
+        std::vector<ME0Stub> chunk(in_list.begin() + i * n, in_list.begin() + std::min((i + 1) * n, size));
         chunks.push_back(chunk);
     }
     return chunks;
+}
+void segment_sorter(std::vector<ME0Stub>& segs, int n, int blockSize) {
+    std::sort(segs.begin(), segs.end(),
+          [](const ME0Stub& lhs, const ME0Stub& rhs) {
+            return ((int) lhs.quality) > ((int) rhs.quality);});
+    segs = std::vector<ME0Stub>(segs.begin(), segs.begin() + n);
+}
+std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec) {
+    std::vector<ME0Stub> cat;
+    for (auto v : vec) {
+        cat.insert(cat.end(), v.begin(), v.end());
+    }
+    return cat;
 }

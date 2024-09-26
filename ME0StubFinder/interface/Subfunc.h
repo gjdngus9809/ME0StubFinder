@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <algorithm>
 #include <bitset>
+#include "ME0StubFinder/ME0StubFinder/interface/ME0Stub.h"
 
-// #include "ME0StubFinder/ME0StubFinder/interface/UInt192.h"
 typedef std::bitset<192> UInt192;
 
 struct Config {
@@ -32,7 +32,7 @@ class hi_lo_t {
 private:
 public:
     int hi, lo;
-    hi_lo_t(int hi_, int lo_);
+    hi_lo_t(int hi_, int lo_) : hi(hi_), lo(lo_) {}
 };
 
 class patdef_t {
@@ -40,7 +40,7 @@ private:
 public:
     int id;
     std::vector<hi_lo_t> layers;
-    patdef_t(int id_, std::vector<hi_lo_t> layers_);
+    patdef_t(int id_, std::vector<hi_lo_t> layers_) : id(id_), layers(layers_) {}
 };
 
 class Mask {
@@ -48,40 +48,8 @@ private:
 public:
     int id;
     std::vector<uint64_t> mask;
-    Mask(int id_, std::vector<uint64_t> mask_);
+    Mask(int id_, std::vector<uint64_t> mask_) : id(id_), mask(mask_) {}
     std::string to_string() const;
-};
-
-class Segment {
-private:
-public:
-    bool ignore_bend = false;
-    unsigned int lc, hc, id, strip, partition;
-    std::vector<float> centroid;
-    float substrip = 0.0;
-    float bend_ang = 0.0;
-    unsigned int quality = 0;
-    Segment();
-    Segment(unsigned int lc_,
-            unsigned int hc_,
-            unsigned int id_,
-            unsigned int strip_,
-            unsigned int partition_);
-    Segment(unsigned int lc_,
-            unsigned int hc_,
-            unsigned int id_,
-            unsigned int strip_,
-            unsigned int partition_,
-            std::vector<float>& centroid_);
-    void reset();
-    void update_quality();
-    void fit(int max_span=37);
-    std::string to_string() const;
-    bool operator==(const Segment& other);
-    bool operator>(const Segment& other);
-    bool operator<(const Segment& other);
-    bool operator>=(const Segment& other);
-    bool operator<=(const Segment& other);
 };
 
 hi_lo_t mirror_hi_lo(const hi_lo_t& ly);
@@ -94,7 +62,8 @@ UInt192 clear_bit(int index, UInt192 num);
 uint64_t ones_bit_mask(int num);
 std::vector<int> find_ones(uint64_t& data);
 float find_centroid(uint64_t& data);
-std::vector<float> llse_fit(const std::vector<float>& x, const std::vector<float>& y);
-std::vector<std::vector<Segment>> chunk(const std::vector<Segment>& in_list, int n);
+std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int n);
+void segment_sorter(std::vector<ME0Stub>& segs, int n, int blockSize); 
+std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec);
 
 #endif

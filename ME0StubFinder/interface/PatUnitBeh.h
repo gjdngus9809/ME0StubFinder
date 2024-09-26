@@ -13,9 +13,9 @@ std::vector<float> calculate_centroids(const std::vector<uint64_t>& masked_data)
 int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light = false);
 int calculate_layer_count(const std::vector<uint64_t>& masked_data);
 
-Segment pat_unit(const std::vector<uint64_t>& data, 
-                 unsigned int strip = 0, 
-                 unsigned int ly_tresh = 4, 
+ME0Stub pat_unit(const std::vector<uint64_t>& data, 
+                 int strip = 0, 
+                 int ly_tresh = 4, 
                  int partition = -1, 
                  int input_max_span = 37, 
                  int num_or = 2, 

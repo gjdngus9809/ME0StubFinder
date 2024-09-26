@@ -20,9 +20,9 @@ std::vector<uint64_t> extract_data_window(const std::vector<UInt192>& ly_dat, in
     }
     return out;
 }
-std::vector<Segment> pat_mux(const std::vector<UInt192>& partition_data, int partition, Config& config) {
-    std::vector<Segment> out;
-    Segment S;
+std::vector<ME0Stub> pat_mux(const std::vector<UInt192>& partition_data, int partition, Config& config) {
+    std::vector<ME0Stub> out;
+    ME0Stub S;
     for (int strip=0; strip<config.width; ++strip) {
         S = pat_unit(extract_data_window(partition_data, strip, config.max_span),
                      strip,

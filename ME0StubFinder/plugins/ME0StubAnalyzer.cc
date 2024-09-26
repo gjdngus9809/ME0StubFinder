@@ -148,8 +148,6 @@ private:
 ME0StubAnalyzer::ME0StubAnalyzer(const edm::ParameterSet &iConfig)
     : gemSimTracks_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("gemSimTrackLabel"))),
       gemSimHits_(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("gemSimHitLabel"))),
-    //   gemDigis_(consumes<GEMDigiCollection>(iConfig.getParameter<edm::InputTag>("gemDigiLabel"))),
-    //   gemLinks_(consumes<edm::DetSetVector<GEMDigiSimLink>>(iConfig.getParameter<edm::InputTag>("gemLinkLabel"))),
       gemRecHits_(consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemRecHitLabel"))),
       gemSegments_(consumes<GEMSegmentCollection>(iConfig.getParameter<edm::InputTag>("gemSegmentLabel")))
 {
@@ -171,8 +169,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
     const GEMGeometry&                            gemGeometry  = iSetup.getData(gemGeometry_);
     const std::vector<SimTrack>&                  gemSimTracks = iEvent.get(gemSimTracks_);
     const std::vector<PSimHit>&                   gemSimHits   = iEvent.get(gemSimHits_);
-    // const MuonDigiCollection<GEMDetId, GEMDigi>&  gemDigis     = iEvent.get(gemDigis_);
-    // const edm::DetSetVector<GEMDigiSimLink>&      gemLinks     = iEvent.get(gemLinks_);
     const edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit>>, edm::ClonePolicy<GEMRecHit>>&
                                                   gemRecHits   = iEvent.get(gemRecHits_);
     const edm::RangeMap<GEMDetId, edm::OwnVector<GEMSegment>>&
@@ -195,8 +191,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
     SegNLayers.clear();
     SegNHit.clear();
 
-    std::cout<<"start - simtrack analysis"<<std::endl;
-
     // Analyze simTracks
     for (const SimTrack& simTrack : gemSimTracks) {
         if (!isSimTrackGood(simTrack)) continue;
@@ -212,9 +206,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
             const GEMDetId& simHitGEMId{simHit.detUnitId()};
 
             if (simHitGEMId.station() != 0) continue;
-
-            // bool digilink = findME0LinksFromSimHit(simHit, gemLinks);
-            // if (!digilink) continue;
 
             if (eventId != simHit.eventId()) continue;
             if (trackId != simHit.trackId()) continue;
@@ -255,8 +246,8 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         int topLayer = topGEMId.layer();
         int botLayer = botGEMId.layer();
 
-        float substrip = (topStrip+botStrip)/2.0;
-        double bendingAngle = (topStrip-botStrip)/(topLayer-botLayer);
+        float substrip = (float)(topStrip+botStrip)/2.0f;
+        double bendingAngle = (double)(topStrip-botStrip)/(double)(topLayer-botLayer);
 
         int chamberNr = topGEMId.region()==1? topGEMId.chamber()+17: topGEMId.chamber()-1;
         int ieta = -1;
@@ -280,8 +271,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         TrackNHit.push_back(nhit);
     }
     NSimTrack = TrackSubstrip.size();
-
-    std::cout<<"start - offseg analysis"<<std::endl;
 
     // Analyze offline Segment
     for (const GEMSegment& segment : gemSegments) {
@@ -321,8 +310,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
 
         const GEMDetId& topGEMId{topHit.gemId()};
         const GEMDetId& botGEMId{botHit.gemId()};
-        // const GEMEtaPartition& topEtaPart = gemGeometry.etaPartition(topGEMId);
-        // const GEMEtaPartition& botEtaPart = gemGeometry.etaPartition(botGEMId);
 
         int topStrip = (topHit.firstClusterStrip() + topHit.clusterSize()/2)/2;
         int botStrip = (botHit.firstClusterStrip() + botHit.clusterSize()/2)/2;
@@ -330,8 +317,8 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         int topLayer = topGEMId.layer();
         int botLayer = botGEMId.layer();
 
-        float substrip = (topStrip+botStrip)/2.0;
-        double bendingAngle = (topStrip-botStrip)/(topLayer-botLayer);
+        float substrip = (float)(topStrip+botStrip)/2.0f;
+        double bendingAngle = (double)(topStrip-botStrip)/(double)(topLayer-botLayer);
 
         int chamberNr = topGEMId.region()==1? topGEMId.chamber()+17: topGEMId.chamber()-1;
         int ieta = -1;
@@ -356,47 +343,40 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
     }
     int NOffSeg = SegSubstrip.size();
 
-    std::cout<<"start - gen data for online seg"<<std::endl;
-
     // Fill chamber data using rechit
-    std::vector<ME0ChamberData> DataMap;
-    for (int i=0; i<36; ++i) {
-        ME0ChamberData temp_ch;
-        for (int j=0; j<8; ++j) {
-            std::vector<UInt192> temp = {UInt192(0),UInt192(0),UInt192(0),UInt192(0),UInt192(0)};
-            temp_ch.push_back(temp);
-        }
-        DataMap.push_back(temp_ch);
-    }
+    std::map<int, ME0ChamberData> DataMap;
     for (const GEMRecHit& recHit : gemRecHits) {
         const GEMDetId& recHitGEMId{recHit.gemId()};
 
+        if ((int)recHitGEMId.station() != 0) continue;
+
         int chamberNr = recHitGEMId.region()==1? recHitGEMId.chamber()+17: recHitGEMId.chamber()-1;
-        ME0ChamberData& thisChamber = DataMap[chamberNr];
+
+        if (DataMap[chamberNr].empty()) {
+            DataMap[chamberNr] 
+                = std::vector<std::vector<UInt192>>(8,{UInt192(0),UInt192(0),UInt192(0),UInt192(0),UInt192(0),UInt192(0)});
+        }
 
         int layer = recHitGEMId.layer();
         int ieta = recHitGEMId.ieta();
+        int ring = recHitGEMId.ring();
+        int region = recHitGEMId.region();
 
         int firstSbit = recHit.firstClusterStrip()/config.num_or;
-        int lastSbit = (firstSbit+recHit.clusterSize()-1)/config.num_or;
+        int lastSbit = (recHit.firstClusterStrip()+recHit.clusterSize()-1)/config.num_or;
 
-        UInt192 cluster{0};
-
-        std::cout << chamberNr << " " << ieta << " " << layer << std::endl;
+        std::cout << ring << " " << region << " " << layer << " " << ieta << " " << recHitGEMId.chamber() << std::endl;
 
         for (int sbit=firstSbit; sbit<=lastSbit; ++sbit) {
-            cluster |= (UInt192(1) << sbit);
+            (DataMap[chamberNr].at(ieta-1)).at(layer-1) |= (UInt192(1) << sbit);
         }
-        
-        thisChamber[ieta-1][layer-1] |= cluster;
     }
 
-    std::cout<<"start - find online seg"<<std::endl;
-
     // Find stub per chamber
-    std::map<int,std::vector<Segment>> online_segment_chamber; 
-    for (int chamberNr=0; chamberNr<36; ++chamberNr) {
-        ME0ChamberData data = DataMap[chamberNr];
+    std::map<int,std::vector<ME0Stub>> online_segment_chamber; 
+    for (const auto& data_pair : DataMap) {
+        int chamberNr = data_pair.first;
+        auto data = data_pair.second;
 
         bool isNoneZero = false;
         for (const auto& firstLayer : data) {
@@ -404,9 +384,9 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         }
         if (!isNoneZero) continue;
 
-        std::vector<Segment> SegList = process_chamber(data, config);
+        std::vector<ME0Stub> SegList = process_chamber(data, config);
         
-        for (Segment& seg : SegList) {
+        for (ME0Stub& seg : SegList) {
             if (seg.id == 0) continue;
             seg.fit(config.max_span);
             if ((seg.partition % 2) != 0) seg.partition = (seg.partition / 2) + 1;
@@ -443,8 +423,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         }
         num_seg_per_chamber_offline->Fill(n_seg_chamber);        
     }
-
-    std::cout<<"start - check eff wrt offseg"<<std::endl;
 
     // Checking efficiency w.r.t. offline segmtents
     std::vector<int> unmatched_offline_index;
@@ -501,8 +479,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         if (!seg_match) unmatched_offline_index.push_back(i);
     }
 
-    std::cout<<"start - check purity wrt offseg"<<std::endl;
-
     // Checking Purity w.r.t. offline segmtents
     for (const auto& pair : online_segment_chamber) {
         int chamber = pair.first;
@@ -542,8 +518,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
             }
         }
     }
-
-    std::cout<<"start - check purity wrt simtrack"<<std::endl;
 
     // Checking efficiency w.r.t. sim tracks
     std::vector<int> unmatched_st_index;
@@ -589,6 +563,7 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
                 std::abs(st_bending_angle):
                 std::abs((st_bending_angle - online_bending_angle)/online_bending_angle);
             if (bending_angle_err >= 0.4 && std::abs(online_bending_angle - st_bending_angle) > 0.6) continue;
+            st_effi_passed_pt->Fill(st_pt);
             st_effi_passed_bending->Fill(st_bending_angle);
             st_effi_passed_eta->Fill(st_ieta);
             st_effi_passed_nlayer->Fill(st_nlayers);
@@ -601,8 +576,6 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         }
         if (!track_match) unmatched_st_index.push_back(i);
     }
-
-    std::cout<<"start - check eff wrt simtrack"<<std::endl;
 
     // Checking Purity w.r.t. sim tracks
     for (const auto& pair : online_segment_chamber) {
@@ -781,10 +754,15 @@ void ME0StubAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
     overall_performance->SetBinContent(7,n_st_purity_total);
     overall_performance->SetBinContent(8,n_st_purity_passed);
 
-    double offline_efficiency = n_offline_effi_passed  /n_offline_effi_total;
-    double offline_purity     = n_offline_purity_passed/n_offline_purity_total;
-    double st_efficiency      = n_st_effi_passed       /n_st_effi_total;
-    double st_purity          = n_st_purity_passed     /n_st_purity_total;
+    double offline_efficiency = (double)n_offline_effi_passed  /(double)n_offline_effi_total;
+    double offline_purity     = (double)n_offline_purity_passed/(double)n_offline_purity_total;
+    double st_efficiency      = (double)n_st_effi_passed       /(double)n_st_effi_total;
+    double st_purity          = (double)n_st_purity_passed     /(double)n_st_purity_total;
+
+    // std::cout << n_offline_effi_total << " " << n_offline_effi_passed << std::endl;
+    // std::cout << n_offline_purity_total << " " << n_offline_purity_passed << std::endl;
+    // std::cout << n_st_effi_total << " " << n_st_effi_passed << std::endl;
+    // std::cout << n_st_purity_total << " " << n_st_purity_passed << std::endl;
 
     std::cout << "Overall efficiency w.r.t offline segments = " << offline_efficiency << std::endl;
     std::cout << "Overall purity w.r.t offline segments     = " << offline_purity     << std::endl;
