@@ -17,10 +17,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-// #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
-// #include "DataFormats/GEMRecHit/interface/GEMSegment.h"
-#include "ME0StubFinder/ME0StubFinder/interface/ME0StubCollection.h"
-#include "ME0StubFinder/ME0StubFinder/interface/Subfunc.h"
+#include "DataFormats/GEMRecHit/interface/ME0StubCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0Stub.h"
 
 // #include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilder.h"
 #include "ME0StubFinder/ME0StubFinder/plugins/ME0StubBuilder.h"
@@ -56,16 +54,11 @@ void ME0StubProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gemDigiLabel", edm::InputTag("gemDigis"));
   ME0StubBuilder::fillDescription(desc);
-  descriptions.add("gemSegments", desc);
+  descriptions.add("me0Stubs", desc);
 }
 
 void ME0StubProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogDebug("ME0StubProducer") << "start producing segments for " << ++iev << "th event with GEM data";
-
-  // find the geometry (& conditions?) for this event & cache it in the builder
-//   edm::ESHandle<GEMGeometry> gemg = setup.getHandle(gemGeomToken_);
-//   const GEMGeometry* mgeom = &*gemg;
-//   segmentBuilder_->setGeometry(mgeom);
 
   // get the collection of GEMDigi
   edm::Handle<GEMDigiCollection> gemDigis;

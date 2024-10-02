@@ -14,11 +14,11 @@
 */
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0StubCollection.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "ME0StubFinder/ME0StubFinder/interface/ME0StubCollection.h"
 
 class ME0StubAlgorithmBase;
 

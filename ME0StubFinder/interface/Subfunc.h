@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <bitset>
-#include "ME0StubFinder/ME0StubFinder/interface/ME0Stub.h"
+#include "DataFormats/GEMRecHit/interface/ME0Stub.h"
 
 typedef std::bitset<192> UInt192;
 
@@ -63,7 +63,7 @@ uint64_t ones_bit_mask(int num);
 std::vector<int> find_ones(uint64_t& data);
 float find_centroid(uint64_t& data);
 std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int n);
-void segment_sorter(std::vector<ME0Stub>& segs, int n, int blockSize); 
+void segment_sorter(std::vector<ME0Stub>& segs, int n); 
 std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec);
 
 #endif

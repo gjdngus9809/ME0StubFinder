@@ -95,21 +95,18 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
     // for (int i = 0; i<hcs.size(); ++i) {
         // seg_list.push_back()
     // }
-    ME0Stub best{0,0,0,0,0};
-    ME0Stub seg{0,0,0,0,0};
+    ME0Stub best{0, 0, 0, strip, partition};
     for (int i = 0; i<(int)hcs.size(); ++i) {
-        seg.lc = lcs[i]; seg.hc = hcs[i]; seg.id = pids[i]; seg.strip = strip;
+        ME0Stub seg{lcs[i], hcs[i], pids[i], strip, partition};
         seg.update_quality();
         if (best < seg) {
             best = seg;
-            best.centroid = centroids[i];
+            best.SetCentroids(centroids[i]);
             best.update_quality();
         }
     }
 
-    if (best.lc < ly_tresh) {best.reset();}
-
-    best.partition = partition;
+    if (best.LayerCount() < ly_tresh) {best.reset();}
 
     // if (verbose) {
         // for (int ly=0; ly<6; ++ly) {

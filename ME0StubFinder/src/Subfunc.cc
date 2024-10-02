@@ -89,10 +89,10 @@ std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int
     }
     return chunks;
 }
-void segment_sorter(std::vector<ME0Stub>& segs, int n, int blockSize) {
+void segment_sorter(std::vector<ME0Stub>& segs, int n) {
     std::sort(segs.begin(), segs.end(),
           [](const ME0Stub& lhs, const ME0Stub& rhs) {
-            return ((int) lhs.quality) > ((int) rhs.quality);});
+            return (lhs.Quality() > rhs.Quality());});
     segs = std::vector<ME0Stub>(segs.begin(), segs.begin() + n);
 }
 std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec) {

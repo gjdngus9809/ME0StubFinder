@@ -10,9 +10,9 @@ bool is_ghost(const ME0Stub& seg,
     from each other)
     */
 
-    bool ghost = (seg.quality < comp.quality) &&
-                 (!check_strips || (abs(seg.strip - comp.strip) < 2)) &&
-                 (!check_ids || ((seg.id == comp.id) || (seg.id+2 == comp.id) || (seg.id == comp.id+2)));
+    bool ghost = (seg.Quality() < comp.Quality()) &&
+                 (!check_strips || (std::abs(seg.Strip() - comp.Strip()) < 2)) &&
+                 (!check_ids || ((seg.PatternId() == comp.PatternId()) || (seg.PatternId()+2 == comp.PatternId()) || (seg.PatternId() == comp.PatternId()+2)));
     return ghost;
 }
 

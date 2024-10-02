@@ -68,8 +68,7 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
         GEMDetId gemid((*it).first);
         if (gemid.station() != 0) continue;
 
-        uint32_t rawIdMask = 0x1003FFF;
-        uint32_t rawId = gemid.rawId() | rawIdMask;
+        uint32_t rawId = (gemid.superChamberId()).rawId();
 
         if (DataMap[rawId].empty()) {
             DataMap[rawId] 
@@ -101,10 +100,10 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
         std::vector<ME0Stub> SegList_processed;
         
         for (ME0Stub& seg : SegList) {
-            if (seg.id == 0) continue;
+            if (seg.PatternId() == 0) continue;
             seg.fit(config.max_span);
-            if ((seg.partition % 2) != 0) seg.partition = (seg.partition / 2) + 1;
-            else seg.partition = (seg.partition / 2);
+            if ((seg.EtaPartition() % 2) != 0) seg.SetEtaPartition(seg.EtaPartition()/2 + 1);
+            else seg.SetEtaPartition(seg.EtaPartition()/2);
 
             SegList_processed.push_back(seg);
         }

@@ -387,10 +387,10 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         std::vector<ME0Stub> SegList = process_chamber(data, config);
         
         for (ME0Stub& seg : SegList) {
-            if (seg.id == 0) continue;
+            if (seg.PatternId() == 0) continue;
             seg.fit(config.max_span);
-            if ((seg.partition % 2) != 0) seg.partition = (seg.partition / 2) + 1;
-            else seg.partition = (seg.partition / 2);
+            if ((seg.EtaPartition() % 2) != 0) seg.SetEtaPartition(seg.EtaPartition()/2 + 1) ;
+            else seg.SetEtaPartition(seg.EtaPartition()/2);
 
             online_segment_chamber[chamberNr].push_back(seg);
         }
@@ -400,8 +400,8 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
         int chamber = pair.first;
         num_seg_per_chamber->Fill((double) pair.second.size());
         for (const auto& seg : pair.second) {
-            rate_seg_per_eta->Fill(seg.partition+1);
-            rate_seg_per_bending_angle->Fill(seg.bend_ang);
+            rate_seg_per_eta->Fill(seg.EtaPartition()+1);
+            rate_seg_per_bending_angle->Fill(seg.BendingAngle());
         }
         if (chamber > 18) {
             for (int i=0; i<(int)pair.second.size(); ++i) {
@@ -451,13 +451,13 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
             if (std::find(seg_matched_index.begin(), 
                           seg_matched_index.end(), idx) != seg_matched_index.end())
                 continue;
-            float online_substrip = seg.substrip+seg.strip;
-            double online_bending_angle = seg.bend_ang;
-            int online_ieta = seg.partition;
-            int online_id = seg.id;
-            int online_hc = seg.hc;
-            int online_lc = seg.lc;
-            int online_quality = seg.quality;
+            float online_substrip = seg.SubStrip()+seg.Strip();
+            double online_bending_angle = seg.BendingAngle();
+            int online_ieta = seg.EtaPartition();
+            int online_id = seg.PatternId();
+            int online_hc = seg.HitCount();
+            int online_lc = seg.LayerCount();
+            int online_quality = seg.Quality();
 
             if (std::abs(online_ieta - offline_ieta) > 1) continue;
             if (std::abs(online_substrip - offline_substrip) > 5) continue;
@@ -483,13 +483,13 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
     for (const auto& pair : online_segment_chamber) {
         int chamber = pair.first;
         for (const auto& seg : pair.second) {
-            float online_substrip = seg.substrip+seg.strip;
-            double online_bending_angle = seg.bend_ang;
-            int online_ieta = seg.partition;
-            // int online_id = seg.id;
-            // int online_hc = seg.hc;
-            int online_lc = seg.lc;
-            int online_quality = seg.quality;
+            float online_substrip = seg.SubStrip()+seg.Strip();
+            double online_bending_angle = seg.BendingAngle();
+            int online_ieta = seg.EtaPartition();
+            // int online_id = seg.PatternId();
+            // int online_hc = seg.HitCount();
+            int online_lc = seg.LayerCount();
+            int online_quality = seg.Quality();
             offline_purity_total_eta->Fill(online_ieta);
             offline_purity_total_bending->Fill(online_bending_angle);
             offline_purity_total_nlayer->Fill(online_lc);
@@ -548,13 +548,13 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
             if (std::find(track_matched_index.begin(), 
                           track_matched_index.end(), idx) != track_matched_index.end())
                 continue;
-            float online_substrip = seg.substrip+seg.strip;
-            double online_bending_angle = seg.bend_ang;
-            int online_ieta = seg.partition;
-            int online_id = seg.id;
-            int online_hc = seg.hc;
-            int online_lc = seg.lc;
-            int online_quality = seg.quality;
+            float online_substrip = seg.SubStrip()+seg.Strip();
+            double online_bending_angle = seg.BendingAngle();
+            int online_ieta = seg.EtaPartition();
+            int online_id = seg.PatternId();
+            int online_hc = seg.HitCount();
+            int online_lc = seg.LayerCount();
+            int online_quality = seg.Quality();
 
             if (std::abs(online_ieta - st_ieta) > 1) continue;
             if (std::abs(online_substrip - st_substrip) > 5) continue;
@@ -581,13 +581,13 @@ void ME0StubAnalyzer::analyze(const edm::Event &iEvent,
     for (const auto& pair : online_segment_chamber) {
         int chamber = pair.first;
         for (const auto& seg : pair.second) {
-            float online_substrip = seg.substrip+seg.strip;
-            double online_bending_angle = seg.bend_ang;
-            int online_ieta = seg.partition;
-            // int online_id = seg.id;
-            // int online_hc = seg.hc;
-            int online_lc = seg.lc;
-            int online_quality = seg.quality;
+            float online_substrip = seg.SubStrip()+seg.Strip();
+            double online_bending_angle = seg.BendingAngle();
+            int online_ieta = seg.EtaPartition();
+            // int online_id = seg.PatternId();
+            // int online_hc = seg.HitCount();
+            int online_lc = seg.LayerCount();
+            int online_quality = seg.Quality();
             st_purity_total_eta->Fill(online_ieta);
             st_purity_total_bending->Fill(online_bending_angle);
             st_purity_total_nlayer->Fill(online_lc);

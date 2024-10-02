@@ -13,9 +13,9 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
     for (int i=1; i<15; i+=2) {
         for (int l=0; l<(int)segments[i].size(); ++l) {
             seg = segments[i][l];
-            if (!seg.id) 
+            if (!seg.PatternId()) 
                 continue;
-            strip = seg.strip;
+            strip = seg.Strip();
 
             seg1_max_quality = -9999;
             seg2_max_quality = -9999;
@@ -24,27 +24,27 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
 
             for (int j=0; j<(int)segments[i-1].size(); ++j) {
                 seg1 = segments[i-1][j];
-                if (!seg1.id)
+                if (!seg1.PatternId())
                     continue;
-                if (abs(strip-seg1.strip) <= cross_part_seg_width) {
-                    if (seg1.quality > seg1_max_quality) {
+                if (abs(strip-seg1.Strip()) <= cross_part_seg_width) {
+                    if (seg1.Quality() > seg1_max_quality) {
                         if (seg1_max_quality_index != -9999)
                             (segments[i-1][seg1_max_quality_index]).reset();
                         seg1_max_quality_index = j;
-                        seg1_max_quality = seg1.quality;
+                        seg1_max_quality = seg1.Quality();
                     }
                 }
             }
             for (int k=0; k<(int)segments[i+1].size(); ++k) {
                 seg2 = segments[i+1][k];
-                if (!seg2.id)
+                if (!seg2.PatternId())
                     continue;
-                if (abs(strip-seg2.strip) <= cross_part_seg_width) {
-                    if (seg2.quality > seg2_max_quality) {
+                if (std::abs(strip-seg2.Strip()) <= cross_part_seg_width) {
+                    if (seg2.Quality() > seg2_max_quality) {
                         if (seg2_max_quality_index != -9999)
                             (segments[i+1][seg2_max_quality_index]).reset();
                         seg2_max_quality_index = k;
-                        seg2_max_quality = seg2.quality;
+                        seg2_max_quality = seg2.Quality();
                     }
                 }
             }
@@ -100,8 +100,8 @@ std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& ch
 
     // pick the best N outputs from each partition
     for (int i=0; i<(int)segments.size(); ++i){
-        // segments[i] = segment_sorter(segments[i], config.num_outputs, 16);
-        segment_sorter(segments[i], config.num_outputs, 16);
+        // segments[i] = segment_sorter(segments[i], config.num_outputs);
+        segment_sorter(segments[i], config.num_outputs);
     }
 
     // join each 2 partitions and pick the best N outputs from them
@@ -113,14 +113,14 @@ std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& ch
     }
     joined_segments.push_back(segments[14]);
     for (int i=0; i<(int)joined_segments.size(); ++i) {
-        // joined_segments[i] = segment_sorter(joined_segments[i], config.num_outputs, 4);
-        segment_sorter(joined_segments[i], config.num_outputs, 4);
+        // joined_segments[i] = segment_sorter(joined_segments[i], config.num_outputs);
+        segment_sorter(joined_segments[i], config.num_outputs);
     }
 
     // concatenate together all of the segments, sort them, and pick the best N outputs
     std::vector<ME0Stub> concatenated = concatVector(joined_segments);
-    // concatenated = segment_sorter(concatenated, config.num_outputs, 8);
-    segment_sorter(concatenated, config.num_outputs, 8);
+    // concatenated = segment_sorter(concatenated, config.num_outputs);
+    segment_sorter(concatenated, config.num_outputs);
 
     return concatenated;
 }
