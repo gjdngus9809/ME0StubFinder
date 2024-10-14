@@ -34,18 +34,19 @@ int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light) {
 int calculate_layer_count(const std::vector<uint64_t>& masked_data) {
     int ly_count = 0;
     bool not_zero;
-    for (uint64_t d : masked_data) {
-        not_zero = (bool)d;
-        ly_count += not_zero;
+    for (int d : masked_data) {
+        not_zero =  (d!=0);
+        ly_count += (int)not_zero;
     }
     return ly_count;
 }
 
 ME0Stub pat_unit(const std::vector<uint64_t>& data, 
                  int strip, 
+                 int partition,
                  int ly_tresh, 
-                 int partition, 
-                 int input_max_span, 
+                 int input_max_span,
+                 bool skip_centroids,
                  int num_or, 
                  bool light_hit_count,
                  bool verbose) {
@@ -88,7 +89,12 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
     for (const std::vector<uint64_t>& x : masked_data) {
         hcs.push_back(calculate_hit_count(x, light_hit_count));
         lcs.push_back(calculate_layer_count(x));
-        centroids.push_back(calculate_centroids(x));
+        if (skip_centroids) {
+            centroids.push_back({0,0,0,0,0,0});
+        } 
+        else {
+            centroids.push_back(calculate_centroids(x));
+        }
     }
 
     // std::vector<ME0Stub> seg_list;
@@ -99,7 +105,7 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
     for (int i = 0; i<(int)hcs.size(); ++i) {
         ME0Stub seg{lcs[i], hcs[i], pids[i], strip, partition};
         seg.update_quality();
-        if (best < seg) {
+        if (best.Quality() < seg.Quality()) {
             best = seg;
             best.SetCentroids(centroids[i]);
             best.update_quality();
@@ -108,15 +114,30 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
 
     if (best.LayerCount() < ly_tresh) {best.reset();}
 
-    // if (verbose) {
-        // for (int ly=0; ly<6; ++ly) {
-            // for (int bit=0; bit<37; ++bit) {
-                // std::cout << std::endl;
-            // }
-        // }
-    // }
+    /*
+    
+    for (int ly=0; ly<6; ++ly) {
+        for (int bit=0; bit<37; ++bit) {
+            std::cout << (0x1 & (data[ly] >> bit));
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-    // best.hc = 0;
+    for (int i=0; i<(int)masked_data.size(); ++i) {
+        std::cout << "id=" << i+1 << std::endl;
+        auto id = masked_data[i];
+        for (int ly=0; ly<6; ++ly) {
+            for (int bit=0; bit<37; ++bit) {
+                std::cout << (0x1 & (id[ly] >> bit));
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+    */
+
+    best.SetHitCount(0);
     best.update_quality();
 
     return best;

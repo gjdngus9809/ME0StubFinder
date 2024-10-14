@@ -1,8 +1,9 @@
 #include "ME0StubFinder/ME0StubFinder/interface/ChamberBeh.h"
 #include <algorithm>
 
-void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width) {
+std::vector<std::vector<ME0Stub>> cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width) {
     ME0Stub seg, seg1, seg2;
+    // std::vector<std::vector<ME0Stub>> out = segments;
 
     int strip;
     int seg1_max_quality;
@@ -13,7 +14,7 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
     for (int i=1; i<15; i+=2) {
         for (int l=0; l<(int)segments[i].size(); ++l) {
             seg = segments[i][l];
-            if (!seg.PatternId()) 
+            if (seg.PatternId()==0) 
                 continue;
             strip = seg.Strip();
 
@@ -24,9 +25,9 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
 
             for (int j=0; j<(int)segments[i-1].size(); ++j) {
                 seg1 = segments[i-1][j];
-                if (!seg1.PatternId())
+                if (seg1.PatternId()==0)
                     continue;
-                if (abs(strip-seg1.Strip()) <= cross_part_seg_width) {
+                if (std::abs(strip-seg1.Strip()) <= cross_part_seg_width) {
                     if (seg1.Quality() > seg1_max_quality) {
                         if (seg1_max_quality_index != -9999)
                             (segments[i-1][seg1_max_quality_index]).reset();
@@ -37,7 +38,7 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
             }
             for (int k=0; k<(int)segments[i+1].size(); ++k) {
                 seg2 = segments[i+1][k];
-                if (!seg2.PatternId())
+                if (seg2.PatternId()==0)
                     continue;
                 if (std::abs(strip-seg2.Strip()) <= cross_part_seg_width) {
                     if (seg2.Quality() > seg2_max_quality) {
@@ -62,13 +63,14 @@ void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, i
             }
         }
     }
+    return segments;
 }
 
 std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data, Config& config) {
     std::vector<std::vector<ME0Stub>> segments;
     int num_finder = (config.x_prt_en)? 15 : 8;
 
-    std::vector<std::vector<UInt192>> data = std::vector<std::vector<UInt192>>(num_finder,std::vector<UInt192>(6));
+    std::vector<std::vector<UInt192>> data(num_finder,std::vector<UInt192>(6,UInt192(0)));
     if (config.x_prt_en) {
 
         for (int finder=0; finder<num_finder; ++finder) {
@@ -95,7 +97,7 @@ std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& ch
         segments.push_back(segs);
     }
     if (config.cross_part_seg_width > 0) {
-        cross_partition_cancellation(segments, config.cross_part_seg_width);
+        segments = cross_partition_cancellation(segments, config.cross_part_seg_width);
     }
 
     // pick the best N outputs from each partition

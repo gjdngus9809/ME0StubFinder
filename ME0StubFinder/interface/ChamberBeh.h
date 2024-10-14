@@ -8,7 +8,7 @@
 #include <algorithm>
 
 // map<int, vector<vector<uint64_t>>> cross_partition_cancellation(vector<vector<uint64_t>> segments);
-void cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width);
+std::vector<std::vector<ME0Stub>> cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width);
 std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data, Config& config);
 
 #endif

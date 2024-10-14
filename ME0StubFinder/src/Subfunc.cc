@@ -93,7 +93,7 @@ void segment_sorter(std::vector<ME0Stub>& segs, int n) {
     std::sort(segs.begin(), segs.end(),
           [](const ME0Stub& lhs, const ME0Stub& rhs) {
             return (lhs.Quality() > rhs.Quality());});
-    segs = std::vector<ME0Stub>(segs.begin(), segs.begin() + n);
+    segs = std::vector<ME0Stub>(segs.begin(), std::min(segs.begin() + n, segs.end()));
 }
 std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec) {
     std::vector<ME0Stub> cat;

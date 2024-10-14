@@ -7,12 +7,16 @@
 #include <cstdint>
 #include <algorithm>
 #include <bitset>
+#include <iostream>
 #include "DataFormats/GEMRecHit/interface/ME0Stub.h"
 
 typedef std::bitset<192> UInt192;
 
 struct Config {
+    bool skip_centroids = false;
     int ly_thresh = 4;
+    // int ly_thresh_patid[17] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4};
+    // int ly_thresh_eta[15] = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4};
     int max_span = 37;
     int width = 192;
     bool deghost_pre = true;

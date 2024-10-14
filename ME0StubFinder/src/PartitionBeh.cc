@@ -11,10 +11,19 @@ bool is_ghost(const ME0Stub& seg,
     */
 
     bool ghost = (seg.Quality() < comp.Quality()) &&
-                 (!check_strips || (std::abs(seg.Strip() - comp.Strip()) < 2)) &&
+                 (!check_strips || (std::abs(seg.Strip()-comp.Strip()) < 2)) &&
                  (!check_ids || ((seg.PatternId() == comp.PatternId()) || (seg.PatternId()+2 == comp.PatternId()) || (seg.PatternId() == comp.PatternId()+2)));
     return ghost;
 }
+
+bool is_at_edge(int x, int group_width, int edge_distance) {
+    if (group_width > 0) {
+        return ((x%group_width) < edge_distance) || ((x%group_width) >= (group_width-edge_distance));
+    }
+    else {
+        return true;
+    }
+};
 
 
 std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
@@ -52,16 +61,14 @@ std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
     etc
     */
 
-    std::vector<ME0Stub> canceled_segements = segments;
+    // std::vector<ME0Stub> canceled_segements = segments;
+    std::vector<ME0Stub> canceled_segements;
+    std::copy(segments.begin(), segments.end(), std::back_inserter(canceled_segements));
     std::vector<int> comps;
-    bool is_at_edge;
+    
     bool ghost;
-
     for (int i=0; i < (int)segments.size(); ++i) {
-        if (group_width > 0) {is_at_edge = (i%group_width < edge_distance) || ((i%group_width) >= (group_width-edge_distance));}
-        else {is_at_edge = true;}
-
-        if (is_at_edge) {
+        if (is_at_edge(i,group_width,edge_distance)) {
             for (int x = i-ghost_width; x < i; ++x) {
                 if (x >= 0) {comps.push_back(x);}
             }
@@ -72,7 +79,8 @@ std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
             for (int comp : comps) {
                 ghost = is_ghost(segments[i], segments[comp]);
                 if (ghost) {
-                    canceled_segements[i] = ME0Stub();
+                    // canceled_segements[i] = ME0Stub();
+                    canceled_segements[i].reset();
                 }
             }
             comps.clear();
@@ -98,24 +106,27 @@ std::vector<ME0Stub> process_partition(const std::vector<UInt192>& partition_dat
     divide partition into pieces, take best segment from each piece
     */
     std::vector<ME0Stub> out;
+    std::vector<ME0Stub> max_segs;
     std::vector<ME0Stub> segments = pat_mux(partition_data, partition, config);
 
     if (config.deghost_pre) {
-        segments = cancel_edges(segments, config.group_width, config.ghost_width, config.edge_distance);
+        segments = cancel_edges(segments, 
+                                config.group_width, 
+                                config.ghost_width, 
+                                config.edge_distance);
     }
     
     std::vector<std::vector<ME0Stub>> chunked = chunk(segments, config.group_width);
     for (const std::vector<ME0Stub>& seg_v : chunked) {
-        ME0Stub max_seg;
+        ME0Stub max_seg = ME0Stub();
         for (const ME0Stub& seg : seg_v) {
-            if (max_seg < seg) {max_seg = seg;}
+            if (max_seg.Quality() < seg.Quality()) {max_seg = seg;}
         }
-        out.push_back(max_seg);
+        max_segs.push_back(max_seg);
     }
 
-    if (config.deghost_post) {
-        out = cancel_edges(out, 0, 1, 1);
-    }
+    if (config.deghost_post) {out = cancel_edges(max_segs, 0, 1, 1);}
+    else {out = max_segs;}
 
     return out;
 }

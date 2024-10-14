@@ -64,7 +64,7 @@ void TestPatUnitBeh::analyze(const edm::Event &iEvent,
             0b1000000000000000000, 
             0b1000000000000000000};
     seg = pat_unit(data, (unsigned int)0, (unsigned int)4, 0);
-    std::cout << seg.id << " " << seg.lc << " / 19 6"<< std::endl; 
+    std::cout << seg.PatternId() << " " << seg.LayerCount() << " / 19 6"<< std::endl; 
     
     data = {0b100000000000000000,
             0b100000000000000000,
@@ -73,7 +73,7 @@ void TestPatUnitBeh::analyze(const edm::Event &iEvent,
             0b100000000000000000,
             0b100000000000000000};
     seg = pat_unit(data, (unsigned int)0, (unsigned int)4, 0);
-    std::cout << seg.id << " " << seg.lc << " / 19 6"<< std::endl; 
+    std::cout << seg.PatternId() << " " << seg.LayerCount() << " / 19 6"<< std::endl; 
 
     data = {0b000100000000000000000, 
             0b001000000000000000000, 
@@ -82,7 +82,7 @@ void TestPatUnitBeh::analyze(const edm::Event &iEvent,
             0b100000000000000000000, 
             0b100000000000000000000};
     seg = pat_unit(data, (unsigned int)0, (unsigned int)4, 0);
-    std::cout << seg.id << " " << seg.lc << " / 18 5"<< std::endl; 
+    std::cout << seg.PatternId() << " " << seg.LayerCount() << " / 18 5"<< std::endl; 
 
     data = {0b000100000000000000000, 
             0b100000000000000000000, 
@@ -91,7 +91,7 @@ void TestPatUnitBeh::analyze(const edm::Event &iEvent,
             0b100000000000000000000,
             0b100000000000000000000};
     seg = pat_unit(data, (unsigned int)0, (unsigned int)4, 0);
-    std::cout << seg.id << " " << seg.lc << " / 0 0"<< std::endl; 
+    std::cout << seg.PatternId() << " " << seg.LayerCount() << " / 0 0"<< std::endl; 
 
     /*
     test of funtion get_ly_mask

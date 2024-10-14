@@ -61,6 +61,9 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
     // different eta partitions and different layers are allowed
 
     Config config;
+    config.num_outputs=10;
+    config.cross_part_seg_width=4;
+    config.ghost_width=10;
     
     std::map<uint32_t, ME0ChamberData> DataMap;
     // Loop on the GEM rechit and select the different GEM Ensemble
