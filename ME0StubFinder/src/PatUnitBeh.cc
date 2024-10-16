@@ -2,18 +2,34 @@
 
 std::vector<uint64_t> mask_layer_data(const std::vector<uint64_t>& data, const Mask& mask_) {
     std::vector<uint64_t> out;
-    for (int i=0; i<(int)data.size(); ++i) {
+    for (int i=0; i<static_cast<int>(data.size()); ++i) {
         out.push_back(data[i] & mask_.mask[i]);
     }
     return out;
 }
 
-std::vector<float> calculate_centroids(const std::vector<uint64_t>& masked_data) {
-    std::vector<float> centroids;
-    for (uint64_t d : masked_data) {
-        centroids.push_back(find_centroid(d));
+std::pair<std::vector<double>,double> calculate_centroids(const std::vector<uint64_t>& masked_data,
+                                                        const std::vector<std::vector<int>>& partition_bx_data) {
+    std::vector<double> centroids;
+    std::vector<int> bxs;
+    for (int ly=0; ly<static_cast<int>(masked_data.size()); ++ly) {
+        auto data = masked_data[ly];
+        auto bx_data = partition_bx_data[ly];
+        const auto temp = find_centroid(data);
+        double cur_centroid = temp.first;
+        std::vector<int> hits_indices = temp.second;
+        centroids.push_back(cur_centroid);
+
+        for (int hitIdx : hits_indices) {
+            bxs.push_back(bx_data[hitIdx-1]);
+        }
     }
-    return centroids;
+    if (static_cast<int>(bxs.size()) == 0) {
+        return {centroids,-9999};
+    }
+    double bx_sum = std::accumulate(bxs.begin(),bxs.end(),0.0);
+    double count = bxs.size();
+    return {centroids, bx_sum/count};
 }
 
 int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light) {
@@ -31,20 +47,35 @@ int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light) {
     }
     return tot_hit_count;
 }
+
 int calculate_layer_count(const std::vector<uint64_t>& masked_data) {
     int ly_count = 0;
     bool not_zero;
     for (int d : masked_data) {
         not_zero =  (d!=0);
-        ly_count += (int)not_zero;
+        ly_count += static_cast<int>(not_zero);
     }
     return ly_count;
 }
 
-ME0Stub pat_unit(const std::vector<uint64_t>& data, 
+std::vector<int> calculate_cluster_size(const std::vector<uint64_t>& data) {
+    std::vector<int> cluster_size_per_layer;
+    for (uint64_t x : data) {cluster_size_per_layer.push_back(max_cluster_size(x));}
+    return cluster_size_per_layer;
+}
+
+std::vector<int> calculate_hits(const std::vector<uint64_t>& data) {
+    std::vector<int> n_hits_per_layer;
+    for (uint64_t x : data) {n_hits_per_layer.push_back(count_ones(x));}
+    return n_hits_per_layer;
+}
+
+ME0Stub pat_unit(const std::vector<uint64_t>& data,
+                 const std::vector<std::vector<int>>& bx_data,
                  int strip, 
                  int partition,
-                 int ly_tresh, 
+                 std::vector<int> ly_thresh_patid,
+                 std::vector<int> ly_thresh_eta,
                  int input_max_span,
                  bool skip_centroids,
                  int num_or, 
@@ -81,29 +112,31 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
         pids.push_back(M.id);
     }
 
-    // (3) count # of hits
-    // (4) process centroids
+    // (3) count # of hits & process centroids
     std::vector<int> hcs;
     std::vector<int> lcs;
-    std::vector<std::vector<float>> centroids;
+    std::vector<std::vector<double>> centroids;
+    std::vector<double> bxs;
     for (const std::vector<uint64_t>& x : masked_data) {
         hcs.push_back(calculate_hit_count(x, light_hit_count));
         lcs.push_back(calculate_layer_count(x));
         if (skip_centroids) {
             centroids.push_back({0,0,0,0,0,0});
+            bxs.push_back(-9999);
         } 
         else {
-            centroids.push_back(calculate_centroids(x));
+            auto temp = calculate_centroids(x, bx_data);
+            std::vector<double> cur_pattern_centroids = temp.first;
+            int cur_pattern_bx = temp.second;
+            centroids.push_back(cur_pattern_centroids);
+            bxs.push_back(cur_pattern_bx);
         }
     }
 
-    // std::vector<ME0Stub> seg_list;
-    // for (int i = 0; i<hcs.size(); ++i) {
-        // seg_list.push_back()
-    // }
+    // (4) process segments & choose the max of all patterns
     ME0Stub best{0, 0, 0, strip, partition};
-    for (int i = 0; i<(int)hcs.size(); ++i) {
-        ME0Stub seg{lcs[i], hcs[i], pids[i], strip, partition};
+    for (int i = 0; i<static_cast<int>(hcs.size()); ++i) {
+        ME0Stub seg{lcs[i], hcs[i], pids[i], strip, partition, bxs[i]};
         seg.update_quality();
         if (best.Quality() < seg.Quality()) {
             best = seg;
@@ -112,33 +145,45 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
         }
     }
 
-    if (best.LayerCount() < ly_tresh) {best.reset();}
+    // (5) apply a layer threshold
+    int ly_tresh_final = std::max(ly_thresh_patid[best.PatternId()-1], ly_thresh_eta[partition]);
 
-    /*
-    
-    for (int ly=0; ly<6; ++ly) {
-        for (int bit=0; bit<37; ++bit) {
-            std::cout << (0x1 & (data[ly] >> bit));
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    if (best.LayerCount() < ly_tresh_final) {best.reset();}
 
-    for (int i=0; i<(int)masked_data.size(); ++i) {
-        std::cout << "id=" << i+1 << std::endl;
-        auto id = masked_data[i];
-        for (int ly=0; ly<6; ++ly) {
-            for (int bit=0; bit<37; ++bit) {
-                std::cout << (0x1 & (id[ly] >> bit));
-            }
-            std::cout << std::endl;
+    // (6) remove very wide segments
+    if (best.PatternId() <= 10) {best.reset();}
+
+    // (7) remove segments with large clusters for wide segments - ONLY NEEDED FOR PU200 - NOT USED AT THE MOEMENT
+    std::vector<int> cluster_size_max_limits = {3, 6, 9, 12, 15};
+    std::vector<int> n_hits_max_limits = {3, 6, 9, 12, 15};
+    std::vector<int> cluster_size_counts = calculate_cluster_size(data);
+    std::vector<int> n_hits_counts = calculate_hits(data);
+    std::vector<int> n_layers_large_clusters = {0, 0, 0, 0, 0};
+    std::vector<int> n_layers_large_hits = {0, 0, 0, 0, 0};
+    for (int i=0; i<static_cast<int>(cluster_size_counts.size()); ++i) {
+        int threshold = cluster_size_max_limits[i];
+        for (int l : cluster_size_counts) {
+            if (l > threshold) {n_layers_large_clusters[i]++;}
         }
-        std::cout << std::endl;
     }
-    */
+    for (int i=0; i<static_cast<int>(n_hits_max_limits.size()); ++i) {
+        int threshold = n_hits_max_limits[i];
+        for (int l : n_hits_counts) {
+            if (l > threshold) {n_layers_large_hits[i]++;}
+        }
+    }
+
+    best.SetMaxClusterSize(*std::max_element(cluster_size_counts.begin(),cluster_size_counts.end()));
+    best.SetMaxNoise(*std::max_element(n_hits_counts.begin(),n_hits_counts.end()));
+
 
     best.SetHitCount(0);
     best.update_quality();
+
+    // if (best.PatternId()!=0) {
+    //     std::cout<<ly_tresh_final<<std::endl;
+    //     std::cout<<best.PatternId()<<" "<<best.LayerCount()<<" "<<best.Strip()<<" "<<best.EtaPartition()<<" "<<best.Quality()<<std::endl;
+    // }
 
     return best;
 }

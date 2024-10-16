@@ -13,9 +13,9 @@ patdef_t mirror_patdef(const patdef_t& pat, int id) {
     patdef_t mirrored{id, layers_};
     return mirrored;
 }
-std::vector<hi_lo_t> create_pat_ly(float lower, float upper) {
+std::vector<hi_lo_t> create_pat_ly(double lower, double upper) {
     std::vector<hi_lo_t> layer_list;
-    float hi, lo;
+    double hi, lo;
     int hi_i, lo_i;
     for (int i=0; i<6; ++i) {
         if (i < 3) {
@@ -43,6 +43,20 @@ int count_ones(u_int64_t x) {
         x = (x>>1);
     }
     return cnt;
+}
+int max_cluster_size(uint64_t x) {
+    int size = 0;
+    int max_size = 0;
+    while (x > 0) {
+        if ((x&1) == 1) {size++;}
+        else {
+            if (size > max_size) {max_size = size;}
+            size = 0;
+        }
+        x = x>>1;
+    }
+    if (size > max_size) {max_size=size;}
+    return max_size;
 }
 UInt192 set_bit(int index, UInt192 num1 = UInt192(0)) {
     UInt192 num2 = (UInt192(1) << index);
@@ -73,12 +87,12 @@ std::vector<int> find_ones(uint64_t& data) {
     }
     return ones;
 }
-float find_centroid(uint64_t& data) {
+std::pair<double,std::vector<int>> find_centroid(uint64_t& data) {
     std::vector<int> ones = find_ones(data);
-    if (!(ones.size())) {return 0.0;}
+    if (static_cast<int>(ones.size())==0) {return {0.0, ones};}
     int sum = 0;
     for (int n : ones) {sum += n;}
-    return (float)sum/ones.size();
+    return {static_cast<double>(sum)/static_cast<double>(ones.size()), ones};
 }
 std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int n) {
     std::vector<std::vector<ME0Stub>> chunks;
@@ -94,6 +108,13 @@ void segment_sorter(std::vector<ME0Stub>& segs, int n) {
           [](const ME0Stub& lhs, const ME0Stub& rhs) {
             return (lhs.Quality() > rhs.Quality());});
     segs = std::vector<ME0Stub>(segs.begin(), std::min(segs.begin() + n, segs.end()));
+}
+std::vector<int> concatVector(const std::vector<std::vector<int>>& vec) {
+    std::vector<int> cat;
+    for (auto v : vec) {
+        cat.insert(cat.end(), v.begin(), v.end());
+    }
+    return cat;
 }
 std::vector<ME0Stub> concatVector(const std::vector<std::vector<ME0Stub>>& vec) {
     std::vector<ME0Stub> cat;

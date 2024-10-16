@@ -14,6 +14,7 @@ std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
                                   int edge_distance = 2,
                                   bool verbose = false);
 std::vector<ME0Stub> process_partition(const std::vector<UInt192>& partition_data,
+                                       const std::vector<std::vector<int>>& partition_bx_data,
                                        int partition,
                                        Config& config);
 

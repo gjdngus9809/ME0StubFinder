@@ -12,6 +12,7 @@
  * \author Piet Verwilligen
  *
 */
+#include <cstdint>
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0StubCollection.h"
@@ -43,6 +44,7 @@ public:
   static void fillDescription(edm::ParameterSetDescription& descriptions);
 
 private:
+   int32_t PileUp;
 };
 
 #endif

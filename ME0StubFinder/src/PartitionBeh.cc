@@ -67,13 +67,13 @@ std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
     std::vector<int> comps;
     
     bool ghost;
-    for (int i=0; i < (int)segments.size(); ++i) {
+    for (int i=0; i < static_cast<int>(segments.size()); ++i) {
         if (is_at_edge(i,group_width,edge_distance)) {
             for (int x = i-ghost_width; x < i; ++x) {
                 if (x >= 0) {comps.push_back(x);}
             }
             for (int x = i+1; x < i+ghost_width+1; ++x) {
-                if (x < (int)segments.size()) {comps.push_back(x);}
+                if (x < static_cast<int>(segments.size())) {comps.push_back(x);}
             }
 
             for (int comp : comps) {
@@ -91,6 +91,7 @@ std::vector<ME0Stub> cancel_edges(const std::vector<ME0Stub>& segments,
 }
 
 std::vector<ME0Stub> process_partition(const std::vector<UInt192>& partition_data,
+                                       const std::vector<std::vector<int>>& partition_bx_data,
                                        int partition,
                                        Config& config) {
     
@@ -107,7 +108,7 @@ std::vector<ME0Stub> process_partition(const std::vector<UInt192>& partition_dat
     */
     std::vector<ME0Stub> out;
     std::vector<ME0Stub> max_segs;
-    std::vector<ME0Stub> segments = pat_mux(partition_data, partition, config);
+    std::vector<ME0Stub> segments = pat_mux(partition_data, partition_bx_data, partition, config);
 
     if (config.deghost_pre) {
         segments = cancel_edges(segments, 
