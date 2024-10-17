@@ -17,7 +17,7 @@ ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {
 ME0StubBuilder::~ME0StubBuilder() {}
 
 void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {
-    desc.add<int32_t>("PileUp", 200);
+    desc.add<int32_t>("PileUp", 0);
 }
 
 void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc) {
@@ -31,7 +31,7 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
     config.num_outputs=10;
     config.cross_part_seg_width=4;
     config.ghost_width=10;
-    if (PileUp>=140) {
+    if (PileUp==200) {
         config.ly_thresh_patid = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 4};
         config.ly_thresh_eta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 5};
     }
@@ -83,7 +83,7 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
             if (seg.MSE() >= mse_thresh) {
                 seg.reset();
             }
-            if (PileUp>=140) {
+            if (PileUp==200) {
                 if (std::abs(seg.BendingAngle()) > 1) seg.reset();
                 if (seg.EtaPartition() >= 9) {
                     if (std::abs(seg.BendingAngle()) > 0.5) seg.reset();

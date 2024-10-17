@@ -16,10 +16,8 @@ typedef std::bitset<192> UInt192;
 struct Config {
     bool skip_centroids = false;
     // int ly_thresh = 4;
-    std::vector<int> ly_thresh_patid = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 4};
-    std::vector<int> ly_thresh_eta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 5};
-    // std::vector<int> ly_thresh_patid = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4};
-    // std::vector<int> ly_thresh_eta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4};
+    std::vector<int> ly_thresh_patid = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4};
+    std::vector<int> ly_thresh_eta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4};
     int max_span = 37;
     int width = 192;
     bool deghost_pre = true;

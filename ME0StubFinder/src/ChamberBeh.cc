@@ -2,8 +2,9 @@
 #include <algorithm>
 
 std::vector<std::vector<ME0Stub>> cross_partition_cancellation(std::vector<std::vector<ME0Stub>>& segments, int cross_part_seg_width) {
-    ME0Stub seg, seg1, seg2;
-    // std::vector<std::vector<ME0Stub>> out = segments;
+    ME0Stub seg;
+    ME0Stub seg1;
+    ME0Stub seg2;
 
     int strip;
     int seg1_max_quality;
@@ -11,13 +12,13 @@ std::vector<std::vector<ME0Stub>> cross_partition_cancellation(std::vector<std::
     int seg1_max_quality_index;
     int seg2_max_quality_index;
     
-    for (int i=1; i<15; i+=2) {
+    for (int i=1; i<static_cast<int>(segments.size()); i+=2) {
         for (int l=0; l<static_cast<int>(segments[i].size()); ++l) {
             seg = segments[i][l];
             if (seg.PatternId()==0) 
                 continue;
-            strip = seg.Strip();
 
+            strip = seg.Strip();
             seg1_max_quality = -9999;
             seg2_max_quality = -9999;
             seg1_max_quality_index = -9999;
@@ -109,6 +110,7 @@ std::vector<ME0Stub> process_chamber(const std::vector<std::vector<UInt192>>& ch
         const std::vector<ME0Stub>& segs = process_partition(prt_data, prt_bx_data, prt, config);
         segments.push_back(segs);
     }
+
     if (config.cross_part_seg_width > 0) {
         segments = cross_partition_cancellation(segments, config.cross_part_seg_width);
     }
