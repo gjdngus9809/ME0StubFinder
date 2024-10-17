@@ -111,6 +111,13 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
             SegList_processed.push_back(seg);
         }
 
+        for (auto seg : SegList_processed) {
+            if (seg.PatternId() != 0) {
+                std::cout<<"region="<<id.region()<<", chamber="<<id.chamber()
+                          <<", "<<seg<<std::endl;
+            }
+        }
+
         oc.put(id, SegList_processed.begin(), SegList_processed.end());
     }
 }
