@@ -51,8 +51,8 @@ int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light) {
 int calculate_layer_count(const std::vector<uint64_t>& masked_data) {
     int ly_count = 0;
     bool not_zero;
-    for (int d : masked_data) {
-        not_zero =  (d!=0);
+    for (uint64_t d : masked_data) {
+        not_zero = (d!=0);
         ly_count += static_cast<int>(not_zero);
     }
     return ly_count;
