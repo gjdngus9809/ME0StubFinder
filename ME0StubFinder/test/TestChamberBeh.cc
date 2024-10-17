@@ -48,7 +48,54 @@ void TestChamberBeh::analyze(const edm::Event &iEvent,
     ME0ChamberData SingleSC 
             = std::vector<std::vector<UInt192>>(8,std::vector<UInt192>(6));
 
-    SingleSC[2] = {0b1110000000, 0b111000000, 0b11100000, 0b111000, 0b11100, 0b1110};
+    SingleSC[0] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0))};
+    SingleSC[1] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0))};
+    SingleSC[2] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0))};
+    SingleSC[3] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x1c7800000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x400000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x100000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000))};
+    SingleSC[4] = {(UInt192(0x0)),
+                   (UInt192(0x200000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x1c00000000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x7ce0000000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0xe3c0180000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x60001ee000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000))};
+    SingleSC[5] = {(UInt192(0x0)),
+                   (UInt192(0xc180000018000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x2000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x606000000000)<<128)|(UInt192(0x0000000000000000)<<64)|(UInt192(0x0000000000000000)),
+                   (UInt192(0x0)),
+                   (UInt192(0x8000000000000)<<128)|(UInt192(0x0000000000000070)<<64)|(UInt192(0x0000000000000000))};
+    SingleSC[6] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0))};
+    SingleSC[7] = {(UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0)),
+                   (UInt192(0x0))};
     // for (auto i : SingleSC) {
         // for (auto j : i) {
             // std::cout<<j.to_ullong()<<" ";
@@ -58,9 +105,9 @@ void TestChamberBeh::analyze(const edm::Event &iEvent,
     // std::cout<<std::endl;
      
     Config config;
-    config.ly_thresh = 6;
-    config.max_span = 37;
-    config.deghost_pre = true;
+    config.num_outputs=10;
+    config.cross_part_seg_width=4;
+    config.ghost_width=10;
 
     auto seglist0 = process_chamber(SingleSC,config);
     // auto seglist1 = process_chamber(SingleSC,config);
@@ -73,11 +120,10 @@ void TestChamberBeh::analyze(const edm::Event &iEvent,
     // auto seglist8 = process_chamber(SingleSC,config);
     // auto seglist9 = process_chamber(SingleSC,config);
 
-    std::cout << "partition / strip / patId / layer count" << std::endl;
-    std::cout << "seg 0 : " << seglist0[0].partition << " " << seglist0[0].strip << " " << seglist0[0].id << " " << seglist0[0].lc << std::endl;
-    std::cout << "seg 1 : " << seglist0[1].partition << " " << seglist0[1].strip << " " << seglist0[1].id << " " << seglist0[1].lc << std::endl;
-    std::cout << "seg 2 : " << seglist0[2].partition << " " << seglist0[2].strip << " " << seglist0[2].id << " " << seglist0[2].lc << std::endl;
-    std::cout << "seg 3 : " << seglist0[3].partition << " " << seglist0[3].strip << " " << seglist0[2].id << " " << seglist0[2].lc << std::endl;
+    std::cout << "Final" << std::endl;
+    for (auto seg : seglist0) {
+        std::cout << seg << std::endl;
+    }
 }
 
 void TestChamberBeh::beginJob() {}

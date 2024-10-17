@@ -13,45 +13,7 @@ typedef std::vector<std::vector<UInt192>> ME0ChamberData;
 ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {}
 ME0StubBuilder::~ME0StubBuilder() {}
 
-void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {
-//   desc.add<bool>("enableGE0", true);
-//   desc.add<bool>("enableGE12", false);
-//   desc.add<std::string>("ge0_name", "GE0SegAlgoRU");
-//   desc.add<std::string>("algo_name", "GEMSegmentAlgorithm");
-
-//   edm::ParameterSetDescription ge0AlgoConfigDesc;
-//   ge0AlgoConfigDesc.add<bool>("allowWideSegments", true);
-//   ge0AlgoConfigDesc.add<bool>("doCollisions", true);
-//   ge0AlgoConfigDesc.add<double>("maxChi2Additional", 100);
-//   ge0AlgoConfigDesc.add<double>("maxChi2Prune", 50);
-//   ge0AlgoConfigDesc.add<double>("maxChi2GoodSeg", 50);
-//   ge0AlgoConfigDesc.add<double>("maxPhiSeeds", 0.001096605744)->setComment("Assuming 384 strips");
-//   ge0AlgoConfigDesc.add<double>("maxPhiAdditional", 0.001096605744)->setComment("Assuming 384 strips");
-//   ge0AlgoConfigDesc.add<double>("maxETASeeds", 0.1)->setComment("Assuming 8 eta partitions");
-//   ge0AlgoConfigDesc.add<double>("maxTOFDiff", 25);
-//   ge0AlgoConfigDesc.add<bool>("requireCentralBX", true)
-//       ->setComment("require that a majority of hits come from central BX");
-//   ge0AlgoConfigDesc.add<unsigned int>("minNumberOfHits", 4);
-//   ge0AlgoConfigDesc.add<unsigned int>("maxNumberOfHits", 300);
-//   ge0AlgoConfigDesc.add<unsigned int>("maxNumberOfHitsPerLayer", 100);
-//   desc.add<edm::ParameterSetDescription>("ge0_pset", ge0AlgoConfigDesc);
-
-//   edm::ParameterSetDescription recAlgoConfigDesc;
-//   recAlgoConfigDesc.addUntracked<bool>("GEMDebug", false);
-//   recAlgoConfigDesc.add<unsigned int>("minHitsPerSegment", 2);
-//   recAlgoConfigDesc.add<bool>("preClustering", true)
-//       ->setComment("False => all hits in chamber are given to the fitter");
-//   recAlgoConfigDesc.add<double>("dXclusBoxMax", 1)->setComment("Clstr Hit dPhi");
-//   recAlgoConfigDesc.add<double>("dYclusBoxMax", 5)->setComment("Clstr Hit dEta");
-//   recAlgoConfigDesc.add<bool>("preClusteringUseChaining", true)
-//       ->setComment("True ==> use Chaining() , False ==> use Clustering() Fnct");
-//   recAlgoConfigDesc.add<double>("dPhiChainBoxMax", .02)->setComment("Chain Hit dPhi");
-//   recAlgoConfigDesc.add<double>("dEtaChainBoxMax", .05)->setComment("Chain Hit dEta");
-//   recAlgoConfigDesc.add<int>("maxRecHitsInCluster", 4)->setComment("Does 4 make sense here?");
-//   recAlgoConfigDesc.add<bool>("clusterOnlySameBXRecHits", true)
-//       ->setComment("only working for (preClustering && preClusteringUseChaining)");
-//   desc.add<edm::ParameterSetDescription>("algo_pset", recAlgoConfigDesc);
-}
+void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {}
 
 void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc) {
     // edm::LogVerbatim("ME0StubBuilder") << "[ME0StubBuilder::build] Total number of rechits in this event: "
@@ -71,17 +33,17 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
         GEMDetId gemid((*it).first);
         if (gemid.station() != 0) continue;
 
-        uint32_t rawId = (gemid.superChamberId()).rawId();
+        uint32_t gemRawId = (gemid.superChamberId()).rawId();
 
-        if (DataMap[rawId].empty()) {
-            DataMap[rawId] 
+        if (DataMap[gemRawId].empty()) {
+            DataMap[gemRawId] 
                 = std::vector<std::vector<UInt192>>(8,{UInt192(0),UInt192(0),UInt192(0),UInt192(0),UInt192(0),UInt192(0)});
         }
         int layer = gemid.layer();
         int ieta = gemid.ieta();
         for (auto digi = ((*it).second).first; digi != ((*it).second).second; ++digi) {
             int strip = (*digi).strip();
-            (DataMap[rawId].at(ieta-1)).at(layer-1) |= (UInt192(1) << (strip/2));
+            (DataMap[gemRawId].at(ieta-1)).at(layer-1) |= (UInt192(1) << (strip/2));
         }
     }
 
@@ -92,7 +54,13 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
 
         bool isNoneZero = false;
         for (const auto& etaData : data) {
-            if (etaData[0].any()) isNoneZero = true; 
+            for (const auto& ly : etaData) {
+                if (ly.any()) {
+                    isNoneZero = true;
+                    break;
+                }
+            }
+            if (isNoneZero) break;
         }
         if (!isNoneZero) continue;
 
