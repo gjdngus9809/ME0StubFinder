@@ -42,20 +42,20 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
         GEMDetId gemid((*it).first);
         if (gemid.station() != 0) continue;
 
-        uint32_t rawId = (gemid.superChamberId()).rawId();
+        uint32_t gemRawId = (gemid.superChamberId()).rawId();
 
-        if (DataMap[rawId].first.empty() || DataMap[rawId].second.empty()) {
-            DataMap[rawId].first
+        if (DataMap[gemRawId].first.empty() || DataMap[gemRawId].second.empty()) {
+            DataMap[gemRawId].first
                 = std::vector<std::vector<UInt192>>(8,std::vector<UInt192>(6,UInt192(0)));
-            DataMap[rawId].second
+            DataMap[gemRawId].second
                 = std::vector<std::vector<std::vector<int>>>(8,std::vector<std::vector<int>>(6,std::vector<int>(192,-9999)));
         }
         int layer = gemid.layer();
         int ieta = gemid.ieta();
         for (auto digi = ((*it).second).first; digi != ((*it).second).second; ++digi) {
             int strip = (*digi).strip();
-            (DataMap[rawId].first.at(ieta-1)).at(layer-1) |= (UInt192(1) << (strip/2));
-            ((DataMap[rawId].second.at(ieta-1)).at(layer-1)).at(strip/2) = (*digi).bx();
+            (DataMap[gemRawId].first.at(ieta-1)).at(layer-1) |= (UInt192(1) << (strip/2));
+            ((DataMap[gemRawId].second.at(ieta-1)).at(layer-1)).at(strip/2) = (*digi).bx();
         }
     }
 
@@ -67,7 +67,13 @@ void ME0StubBuilder::build(const GEMDigiCollection* digis, ME0StubCollection& oc
 
         bool isNoneZero = false;
         for (const auto& etaData : data) {
-            if (etaData[0].any()) isNoneZero = true; 
+            for (const auto& ly : etaData) {
+                if (ly.any()) {
+                    isNoneZero = true;
+                    break;
+                }
+            }
+            if (isNoneZero) break;
         }
         if (!isNoneZero) continue;
 
