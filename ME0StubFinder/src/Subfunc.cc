@@ -13,9 +13,9 @@ patdef_t mirror_patdef(const patdef_t& pat, int id) {
     patdef_t mirrored{id, layers_};
     return mirrored;
 }
-std::vector<hi_lo_t> create_pat_ly(float lower, float upper) {
+std::vector<hi_lo_t> create_pat_ly(double lower, double upper) {
     std::vector<hi_lo_t> layer_list;
-    float hi, lo;
+    double hi, lo;
     int hi_i, lo_i;
     for (int i=0; i<6; ++i) {
         if (i < 3) {
@@ -73,12 +73,12 @@ std::vector<int> find_ones(uint64_t& data) {
     }
     return ones;
 }
-float find_centroid(uint64_t& data) {
+double find_centroid(uint64_t& data) {
     std::vector<int> ones = find_ones(data);
     if (!(ones.size())) {return 0.0;}
     int sum = 0;
     for (int n : ones) {sum += n;}
-    return (float)sum/ones.size();
+    return (double)sum/ones.size();
 }
 std::vector<std::vector<ME0Stub>> chunk(const std::vector<ME0Stub>& in_list, int n) {
     std::vector<std::vector<ME0Stub>> chunks;

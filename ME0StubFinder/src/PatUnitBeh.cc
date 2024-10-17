@@ -8,8 +8,8 @@ std::vector<uint64_t> mask_layer_data(const std::vector<uint64_t>& data, const M
     return out;
 }
 
-std::vector<float> calculate_centroids(const std::vector<uint64_t>& masked_data) {
-    std::vector<float> centroids;
+std::vector<double> calculate_centroids(const std::vector<uint64_t>& masked_data) {
+    std::vector<double> centroids;
     for (uint64_t d : masked_data) {
         centroids.push_back(find_centroid(d));
     }
@@ -85,7 +85,7 @@ ME0Stub pat_unit(const std::vector<uint64_t>& data,
     // (4) process centroids
     std::vector<int> hcs;
     std::vector<int> lcs;
-    std::vector<std::vector<float>> centroids;
+    std::vector<std::vector<double>> centroids;
     for (const std::vector<uint64_t>& x : masked_data) {
         hcs.push_back(calculate_hit_count(x, light_hit_count));
         lcs.push_back(calculate_layer_count(x));

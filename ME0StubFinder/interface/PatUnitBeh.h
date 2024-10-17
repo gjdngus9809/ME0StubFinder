@@ -9,7 +9,7 @@
 #include <algorithm>
 
 std::vector<uint64_t> mask_layer_data(const std::vector<uint64_t>& data, const Mask& mask);
-std::vector<float> calculate_centroids(const std::vector<uint64_t>& masked_data);
+std::vector<double> calculate_centroids(const std::vector<uint64_t>& masked_data);
 int calculate_hit_count(const std::vector<uint64_t>& masked_data, bool light = false);
 int calculate_layer_count(const std::vector<uint64_t>& masked_data);
 
